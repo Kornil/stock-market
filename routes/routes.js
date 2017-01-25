@@ -1,6 +1,5 @@
 module.exports = function (app) {
 
-
   app.use(require('body-parser').urlencoded({ extended: true }));  
   var yahooFinance = require('yahoo-finance');
 
