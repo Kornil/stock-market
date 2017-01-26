@@ -25,14 +25,28 @@ module.exports = function (app) {
 
     Stock.find({name: req.body.symbol}).exec()
       .then(function(data){
+        
         if(!data.length){
-          var newStock = Stock({
-            name: req.body.symbol
-          })
-          newStock.save()
-            .then(function(){
-              res.redirect('/');
+          var symbol = req.body.symbol.toUpperCase();
+          yahooFinance.snapshot({
+          symbol: symbol,
+          fields: ['s', 'n']  // ex: ['s', 'n', 'd1', 'l1', 'y', 'r']
+          }, function (err, snapshot) {
+            if (err) throw err;
+            if(!snapshot.name){
+              res.redirect('/')
+            }else{
+              var newStock = Stock({
+              name: symbol
             })
+            newStock.save()
+              .then(function(){
+                res.redirect('/');
+              })
+            }
+            
+          });
+          
         }else{
           res.redirect('/');
         }
