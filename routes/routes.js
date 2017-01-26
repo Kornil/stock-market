@@ -25,7 +25,7 @@ module.exports = function (app) {
 
     Stock.find({name: req.body.symbol}).exec()
       .then(function(data){
-        if(data.length){
+        if(!data.length){
           var newStock = Stock({
             name: req.body.symbol
           })
