@@ -6,10 +6,25 @@ module.exports = function (app) {
   var yahooFinance = require('yahoo-finance');
 
   app.get('/', function (req, res) {
-    Stock.find({}, function(err, data){
+
+    Stock.find({}).exec()
+      .then(function(symbols){
+        var sym = symbols.map((n)=>n.name);
+        yahooFinance.snapshot({
+          symbols: sym,
+          fields: ['s', 'n', 'o', 'c1', 'p2']  
+        }).then(function(data){
+          console.log(data)
+          res.render('index', {data: data});
+        })
+      }).catch(function(err){
+        throw err;
+      });
+
+    /*Stock.find({}, function(err, data){
       if (err) throw err;
       res.render('index', {stocks: data});
-    })
+    })*/
   });
 
   app.post('/addsymbol', function(req, res){
@@ -30,7 +45,7 @@ module.exports = function (app) {
           var symbol = req.body.symbol.toUpperCase();
           yahooFinance.snapshot({
           symbol: symbol,
-          fields: ['s', 'n']  // ex: ['s', 'n', 'd1', 'l1', 'y', 'r']
+          fields: ['n']  // ex: ['s', 'n', 'd1', 'l1', 'y', 'r']
           }, function (err, snapshot) {
             if (err) throw err;
             if(!snapshot.name){

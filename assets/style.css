@@ -3,4 +3,18 @@ body {
 }
 p {
   font-size: 12px;
+  margin: 5px 0;
+}
+#stocks-info {
+  padding-top: 20px;
+}
+.panel {
+  width: 20%;
+  float: left;
+}
+.red {
+  color: red;
+}
+.green {
+  color: green;
 }

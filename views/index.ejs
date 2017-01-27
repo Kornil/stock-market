@@ -11,11 +11,32 @@
       <form method="post" action="/addsymbol">
         <input type="text" name="symbol">
       </form>
-      <%= stocks %>
+      <div id="stocks-info">
+      <!--<% for (var i = data.length, dataF = JSON.stringify(data); i >= 0; i--) { %>
+      <p><%= dataF[i].name %></p>
+      <% } %>-->
+      </div>
 
     </div><!-- /.container -->
 
     <script>
+    var obj = <%- JSON.stringify(data) %>;
+    for(var i=0;i<obj.length;i++){
+      var $panel = $("<div>", {id: obj[i].symbol, "class": "panel panel-info"});
+      var color = (obj[i].changeInPercent > 0)? "green" : "red" ;      
+      $("#stocks-info").append($panel);
+      $($panel).append(
+      $('<div>')
+      .addClass("panel-heading")
+      .text(obj[i].symbol+" - "+obj[i].name)      
+      ).append(
+      $('<div>')
+      .addClass("panel-body")
+      .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
+      +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
+      )
+      //$('#stocks-info').text(obj[i].name);
+    }
     </script>
   </body>
 </html>
