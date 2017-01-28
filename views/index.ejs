@@ -19,8 +19,15 @@
 
     </div><!-- /.container -->
 
+
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-    var obj = <%- JSON.stringify(data) %>;
+    
+    var socket = io();
+    socket.on('news_by_server', function(data){
+    
+    var obj =  data.newData;
+    $("#stocks-info").empty();
     for(var i=0;i<obj.length;i++){
       var $panel = $("<div>", {id: obj[i].symbol, "class": "panel panel-info"});
       var color = (obj[i].changeInPercent > 0)? "green" : "red" ;      
@@ -37,6 +44,8 @@
       )
       //$('#stocks-info').text(obj[i].name);
     }
+    })
     </script>
+    
   </body>
 </html>

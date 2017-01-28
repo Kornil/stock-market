@@ -21,6 +21,7 @@
     "ejs": "^2.5.5",
     "express": "^4.14.0",
     "mongoose": "^4.7.8",
+    "socket.io": "^1.7.2",
     "yahoo-finance": "^0.2.16"
   }
 }

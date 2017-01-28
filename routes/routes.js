@@ -1,6 +1,40 @@
 var Stock = require('../models/stock');
 
-module.exports = function (app) {
+module.exports = function (app, io) {
+
+  /*function refreshStock(symbs){
+    setInterval(function(){
+      yahooFinance.snapshot({
+          symbols: symbs,
+          fields: ['s', 'n', 'o', 'c1', 'p2']  
+        }, function(err, data){
+          if (err) throw err;
+          return data;
+        })
+        }, 500);
+}*/
+
+  var newData;
+
+  setInterval(function(){
+    Stock.find({}).exec()
+      .then(function(symbols){
+        var sym = symbols.map((n)=>n.name);
+        yahooFinance.snapshot({
+          symbols: sym,
+          fields: ['s', 'n', 'o', 'c1', 'p2']  
+        }).then(function(data){
+          newData = data;
+        })
+      }).catch(function(err){
+        throw err;
+      });
+  }, 500);
+io.on('connection', function(socket){
+  setInterval(function(){
+      io.emit('news_by_server', {newData}); 
+  }, 1000);
+});
 
   app.use(require('body-parser').urlencoded({ extended: true }));  
   var yahooFinance = require('yahoo-finance');
