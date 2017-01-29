@@ -41,24 +41,8 @@ io.on('connection', function(socket){
 
   app.get('/', function (req, res) {
 
-    Stock.find({}).exec()
-      .then(function(symbols){
-        var sym = symbols.map((n)=>n.name);
-        yahooFinance.snapshot({
-          symbols: sym,
-          fields: ['s', 'n', 'o', 'c1', 'p2']  
-        }).then(function(data){
-          console.log(data)
-          res.render('index', {data: data});
-        })
-      }).catch(function(err){
-        throw err;
-      });
-
-    /*Stock.find({}, function(err, data){
-      if (err) throw err;
-      res.render('index', {stocks: data});
-    })*/
+    res.render('index');
+    
   });
 
   app.post('/addsymbol', function(req, res){
