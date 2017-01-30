@@ -1,18 +1,7 @@
 var Stock = require('../models/stock');
+var dateFormat = require('dateformat');
 
 module.exports = function (app, io) {
-
-  /*function refreshStock(symbs){
-    setInterval(function(){
-      yahooFinance.snapshot({
-          symbols: symbs,
-          fields: ['s', 'n', 'o', 'c1', 'p2']  
-        }, function(err, data){
-          if (err) throw err;
-          return data;
-        })
-        }, 500);
-}*/
 
   var newData;
 
@@ -30,18 +19,38 @@ module.exports = function (app, io) {
         throw err;
       });
   }, 500);
-io.on('connection', function(socket){
-  setInterval(function(){
-      io.emit('news_by_server', {newData}); 
-  }, 1000);
-});
+  
+  io.on('connection', function(socket){
+    setInterval(function(){
+        io.emit('news_by_server', {newData}); 
+    }, 1000);
+  });
 
   app.use(require('body-parser').urlencoded({ extended: true }));  
   var yahooFinance = require('yahoo-finance');
 
   app.get('/', function (req, res) {
-
-    res.render('index');
+    Stock.find({}).exec()
+      .then(function(arr){
+        var symArray = arr.map((n)=>n.name);
+        yahooFinance.historical({
+          symbols: symArray,
+          from: dateFormat(Date.now()-604800000, "yyyy-mm-dd"), // a week
+          to: dateFormat(Date.now(), "yyyy-mm-dd"),
+          period: 'd'
+          }).then(function(data){
+            var formattedArr = [];
+            for(var i=0;i<symArray.length;i++){
+              data[symArray[i]].map((e)=>formattedArr.push(e))
+            }
+            //var formattedArr = 
+            res.render('index', {daily: formattedArr})
+          })
+      }).catch(function(err){
+        throw err;
+      });
+    //dateFormat(now, "yyyy-mm-dd");
+    //res.render('index');
     
   });
 
@@ -63,7 +72,7 @@ io.on('connection', function(socket){
           var symbol = req.body.symbol.toUpperCase();
           yahooFinance.snapshot({
           symbol: symbol,
-          fields: ['n']  // ex: ['s', 'n', 'd1', 'l1', 'y', 'r']
+          fields: ['n']
           }, function (err, snapshot) {
             if (err) throw err;
             if(!snapshot.name){

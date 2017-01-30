@@ -7,7 +7,10 @@
 
     <div class="container">
           
-      <h1>Hello</h1>
+      <h1>Stock Market</h1>
+      <div id="chart">
+        <!--<%- JSON.stringify(daily) %>-->   
+      </div>
       <form method="post" action="/addsymbol">
         <input type="text" name="symbol">
       </form>
@@ -39,7 +42,7 @@
       .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
       +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
       )
-      //$('#stocks-info').text(obj[i].name);
+      
     }
     })
     </script>
