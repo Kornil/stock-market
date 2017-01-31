@@ -89,17 +89,23 @@ module.exports = function (app, io) {
               .then(function(){
                 res.redirect('/');
               })
-            }
-            
-          });
-          
+            }            
+          });          
         }else{
           res.redirect('/');
         }
       }).catch(function(err){
         throw err;
       });
+  });
 
+  app.delete('/profile/:symbol', function(req, res){
+    Stock.find({ name: req.params.symbol }).remove().exec()
+      .then(function(){
+        res.redirect('/');
+      }).catch(function(err){
+        throw err;
+      });
   });
 
 }

@@ -33,19 +33,35 @@
         var $panel = $("<div>", {id: obj[i].symbol, "class": "panel panel-info"});
         var color = (obj[i].changeInPercent > 0)? "green" : "red" ;      
         $("#stocks-info").append($panel);
-        $($panel).append(
-        $('<div>')
-        .addClass("panel-heading")
-        .text(obj[i].symbol+" - "+obj[i].name)      
-        ).append(
-        $('<div>')
-        .addClass("panel-body")
-        .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
-        +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
-        )        
+        $($panel)
+          .append(
+            $('<div>')
+            .addClass("panel-heading")
+            .text(obj[i].symbol+" - "+obj[i].name)      
+          ).append(
+            $('<div>')
+            .addClass("panel-body")
+            .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
+            +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
+          ).append(
+            '<i id="<%= obj[i].symbol %>" class="fa fa-times" aria-hidden="true"></i>'
+          )
+
       }
 
     })
+    // delete function
+    $('.fa-times').on('click', function(){
+      var symbol = $(this).attr('id');
+      $.ajax({
+        url: '/delete/'+id,
+        type: 'DELETE',       
+        complete: function(){
+          window.location.reload(true);
+        }
+      });
+    });
+
     // chart
     var data = <%- JSON.stringify(daily) %> ;
 
