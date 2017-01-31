@@ -9,16 +9,16 @@
           
       <h1>Stock Market</h1>
       <div id="chart">
-        <!--<%- JSON.stringify(daily) %>-->   
+        <!-- chart -->
+        <svg id="stock_chart" width="1050" height="500"></svg>
       </div>
       <form method="post" action="/addsymbol">
-        <input type="text" name="symbol">
+        <input type="text" name="symbol" placeholder="Add a symbol">
       </form>
       <div id="stocks-info">
       </div>
 
     </div><!-- /.container -->
-
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -26,25 +26,98 @@
     var socket = io();
     socket.on('news_by_server', function(data){
     
-    var obj =  data.newData;
-    $("#stocks-info").empty();
-    for(var i=0;i<obj.length;i++){
-      var $panel = $("<div>", {id: obj[i].symbol, "class": "panel panel-info"});
-      var color = (obj[i].changeInPercent > 0)? "green" : "red" ;      
-      $("#stocks-info").append($panel);
-      $($panel).append(
-      $('<div>')
-      .addClass("panel-heading")
-      .text(obj[i].symbol+" - "+obj[i].name)      
-      ).append(
-      $('<div>')
-      .addClass("panel-body")
-      .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
-      +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
-      )
-      
-    }
+      var obj =  data.newData;
+      //console.log(obj)
+      $("#stocks-info").empty();
+      for(var i=0;i<obj.length;i++){
+        var $panel = $("<div>", {id: obj[i].symbol, "class": "panel panel-info"});
+        var color = (obj[i].changeInPercent > 0)? "green" : "red" ;      
+        $("#stocks-info").append($panel);
+        $($panel).append(
+        $('<div>')
+        .addClass("panel-heading")
+        .text(obj[i].symbol+" - "+obj[i].name)      
+        ).append(
+        $('<div>')
+        .addClass("panel-body")
+        .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
+        +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
+        )        
+      }
+
     })
+    // chart
+    var data = <%- JSON.stringify(daily) %> ;
+
+    var dataGroup = d3.nest()
+                        .key((d)=>  d.symbol)
+                        .entries(data);
+    var color = d3.scale.category10();
+    var vis = d3.select("#stock_chart"),
+        WIDTH = 1050, HEIGHT = 500,
+        MARGINS = {
+            top: 50,
+            right: 20,
+            bottom: 50,
+            left: 50
+        },
+        lSpace = WIDTH/dataGroup.length;
+        var mindate = Date.now()-(604800000*4)*12,
+            maxdate = Date.now(),
+        xScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([mindate,maxdate]),
+        yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(data, function(d) {
+            return d.open;
+        }), d3.max(data, function(d) {
+            return d.open;
+        })]),
+        xAxis = d3.svg.axis()
+        .scale(xScale)//.ticks(5),
+        ,yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient("left");
+                    
+        vis.append("svg:g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+            .call(xAxis);
+        vis.append("svg:g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+            .call(yAxis);
+                        
+        var lineGen = d3.svg.line()
+            .x(function(d) {
+                return xScale(d.date);
+            })
+            .y(function(d) {
+                return yScale(d.open);
+            })
+
+        dataGroup.forEach(function(d,i) {
+            vis.append('svg:path')
+            .attr('d', lineGen(d.values))
+            .attr('stroke', function(d,j) { 
+                    return "hsl(" + Math.random() * 360 + ",100%,50%)";
+            })
+            .attr('stroke-width', 2)
+            .attr('id', 'line_'+d.key)
+            .attr('fill', 'none');
+            
+            vis.append("text")
+                .attr("x", (lSpace/2)+i*lSpace)
+                .attr("y", HEIGHT)
+                .style("fill", "blue")
+                .style("cursor","pointer")
+                .attr("class","legend")
+                .on('click',function(){
+                    var active   = d.active ? false : true;
+                    var opacity = active ? 0 : 1;
+                    d3.select("#line_" + d.key).style("opacity", opacity);
+                    d.active = active;
+                })
+                .text(d.key);
+        });
+
     </script>
     
   </body>

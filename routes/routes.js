@@ -28,53 +28,57 @@ module.exports = function (app, io) {
 
   app.use(require('body-parser').urlencoded({ extended: true }));  
   var yahooFinance = require('yahoo-finance');
+  var globalData, symArr;
 
   app.get('/', function (req, res) {
     Stock.find({}).exec()
       .then(function(arr){
         var symArray = arr.map((n)=>n.name);
+        symArr = symArray;
         yahooFinance.historical({
           symbols: symArray,
-          from: dateFormat(Date.now()-604800000, "yyyy-mm-dd"), // a week
+          from: dateFormat(Date.now()-(604800000*4)*12, "yyyy-mm-dd"), // a week
           to: dateFormat(Date.now(), "yyyy-mm-dd"),
           period: 'd'
           }).then(function(data){
             var formattedArr = [];
             for(var i=0;i<symArray.length;i++){
-              data[symArray[i]].map((e)=>formattedArr.push(e))
+              data[symArray[i]].map((e)=>formattedArr.push({date: Date.parse(e.date),symbol: e.symbol,open: e.open}))
             }
-            //var formattedArr = 
+
+            /*var betterFormat = []; // my lazyness has decided that I prefer to format an entire json than change my d3 graph
+            for(var i=0;i<symArr.length;i++){
+              betterFormat.push({key: symArr[i], values: []});
+            }
+            var counter = 0;
+            for(var i=0;i<formattedArr.length;i++){
+              if(formattedArr[i].symbol===betterFormat[counter].key){
+                betterFormat[counter].values.push(formattedArr[i].open,formattedArr[i].date,formattedArr[i].symbol)
+              }else{
+                counter++;
+                betterFormat[counter].values.push(formattedArr[i].open,formattedArr[i].date,formattedArr[i].symbol)
+              }
+            }*/
+
             res.render('index', {daily: formattedArr})
           })
       }).catch(function(err){
         throw err;
       });
-    //dateFormat(now, "yyyy-mm-dd");
-    //res.render('index');
     
   });
 
   app.post('/addsymbol', function(req, res){
-    /*yahooFinance.historical({
-    symbol: req.body.symbol,
-    from: '2016-01-01',
-    to: '2016-12-31',
-    period: 'm'
-    }, function (err, data) {
-      if (err) throw err;
-      res.send(data);
-    });*/
 
-    Stock.find({name: req.body.symbol}).exec()
+    var symbol = req.body.symbol.toUpperCase();
+    Stock.find({name: symbol}).exec()
       .then(function(data){
         
         if(!data.length){
-          var symbol = req.body.symbol.toUpperCase();
           yahooFinance.snapshot({
           symbol: symbol,
           fields: ['n']
-          }, function (err, snapshot) {
-            if (err) throw err;
+          }).then(function(snapshot){
             if(!snapshot.name){
               res.redirect('/')
             }else{
