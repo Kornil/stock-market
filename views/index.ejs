@@ -48,22 +48,20 @@
             .addClass('fa fa-times')
             .attr("id", obj[i].symbol)
             .attr("aria-hidden","true")
+            .click(function(){
+              $.ajax({
+                url: '/delete/'+$(this).attr('id'),
+                type: 'DELETE',       
+                complete: function(){
+                  window.location.reload(true);
+                }
+              });
+            })
           )
 
       }
 
     })
-    // delete function
-    $('.fa-times').on('click', function(){
-      var symbol = $(this).attr('id');
-      $.ajax({
-        url: '/delete/'+id,
-        type: 'DELETE',       
-        complete: function(){
-          window.location.reload(true);
-        }
-      });
-    });
 
     // chart
     var data = <%- JSON.stringify(daily) %> ;

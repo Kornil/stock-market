@@ -99,7 +99,7 @@ module.exports = function (app, io) {
       });
   });
 
-  app.delete('/profile/:symbol', function(req, res){
+  app.delete('/delete/:symbol', function(req, res){
     Stock.find({ name: req.params.symbol }).remove().exec()
       .then(function(){
         res.redirect('/');
