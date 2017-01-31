@@ -1,24 +1,30 @@
+.panel-heading {
+  padding-right: 30px;
+  height: 4em;
+  overflow: hidden;
+  line-height: 1.5;
+}
 p {
   font-size: 12px;
   margin: 5px 0;
 }
-#stocks-info {
-  padding-top: 20px;
-}
 .panel {
-  width: 20%;
-  float: left;  
+  width: 18%;
   position: relative;
-  height: 150px;
+  height: 200px;
+  display: inline-block;
+  margin: 5px;
 }
 .red {
-  color: red;
+  color: tomato;
 }
 .green {
   color: green;
 }
 input {
-  margin-top: 50px;
+  margin: 2em auto 1em;
+  display: block;
+  padding-left: 5px;
 }
 .fa-times {
   top: 6px;
