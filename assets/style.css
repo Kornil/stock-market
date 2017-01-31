@@ -9,6 +9,7 @@ p {
   width: 20%;
   float: left;  
   position: relative;
+  height: 150px;
 }
 .red {
   color: red;
