@@ -44,7 +44,10 @@
             .html("<b>"+obj[i].open+"</b><br><p> Change: <span class="+color+">"+obj[i].change.toFixed(2) 
             +"</span>  (<span class="+color+">"+ (obj[i].changeInPercent*100).toFixed(2)+"%)</span></p>")      
           ).append(
-            '<i id="<%= obj[i].symbol %>" class="fa fa-times" aria-hidden="true"></i>'
+            $('<i>')
+            .addClass('fa fa-times')
+            .attr("id", <%= obj[i].symbol %>)
+            .attr("aria-hidden","true")
           )
 
       }
